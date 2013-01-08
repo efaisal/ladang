@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial: ladang - inotify Made Easy &mdash; ladang 0.8.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.8.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ladang 0.8.0 documentation" href="index.html" />
+    <link rel="next" title="Module functions" href="api.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Module functions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ladang 0.8.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial-ladang-inotify-made-easy">
+<h1>Tutorial: ladang - inotify Made Easy<a class="headerlink" href="#tutorial-ladang-inotify-made-easy" title="Permalink to this headline">¶</a></h1>
+<p>You are only 6 steps away to fully utilize ladang:</p>
+<div class="section" id="step-one">
+<h2>Step One<a class="headerlink" href="#step-one" title="Permalink to this headline">¶</a></h2>
+<p>Import the module.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">ladang</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-two">
+<h2>Step Two<a class="headerlink" href="#step-two" title="Permalink to this headline">¶</a></h2>
+<p>Get a file descriptor associated with a new inotify event queue.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">notify_fd</span> <span class="o">=</span> <span class="n">ladang</span><span class="o">.</span><span class="n">init</span><span class="p">()</span> <span class="c"># This call is blocking</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">notify_fd</span> <span class="o">=</span> <span class="n">ladang</span><span class="o">.</span><span class="n">init1</span><span class="p">(</span><span class="n">ladang</span><span class="o">.</span><span class="n">NONBLOCK</span><span class="o">|</span><span class="n">ladang</span><span class="o">.</span><span class="n">CLOEXEC</span><span class="p">)</span> <span class="c"># This call is non-blocking</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-three">
+<h2>Step Three<a class="headerlink" href="#step-three" title="Permalink to this headline">¶</a></h2>
+<p>Next we add or create a new watch for file or directory we are interested to
+monitor. For example, if we are interested to monitor some events for
+<em>/path/to/mydir</em> for all events, we can tell the inotify event queue to tell us
+when the event occur by doing:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">watch_fd</span> <span class="o">=</span> <span class="n">ladang</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="n">notify_fd</span><span class="p">,</span> <span class="s">&#39;/path/to/mydir&#39;</span><span class="p">,</span> <span class="n">ladang</span><span class="o">.</span><span class="n">IN_ALL_EVENTS</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The bit mask <tt class="docutils literal"><span class="pre">ladang.IN_ALL_EVENTS</span></tt> indicates we are interested in all events.
+There are many other masks available which can be bitwise ORed. See <a class="reference internal" href="api.html#addwatch-constant"><em>add_watch() flag constants</em></a>
+for other possible values.</p>
+</div>
+<div class="section" id="step-four">
+<h2>Step Four<a class="headerlink" href="#step-four" title="Permalink to this headline">¶</a></h2>
+<p>If any of the events we are interested in occur, inotify will put it into an
+event queue. All we have to do is fetch the occured events from the queue.
+First create a file in <em>/path/to/mydir</em> so that there is a filesystem event
+happen. Execute from the shell:</p>
+<div class="highlight-python"><pre>$ touch /path/to/mydir/myfile</pre>
+</div>
+<p>Then we can pull the events from the queue by doing:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">events</span> <span class="o">=</span> <span class="n">ladang</span><span class="o">.</span><span class="n">get_event</span><span class="p">(</span><span class="n">notify_fd</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Watch description: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">evt</span><span class="p">[</span><span class="s">&#39;wd&#39;</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mask: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">evt</span><span class="p">[</span><span class="s">&#39;mask&#39;</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Mask descr: </span><span class="si">%s</span><span class="s"> =&gt; </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">ladang</span><span class="o">.</span><span class="n">INOTIFY_MASKS</span><span class="p">[</span><span class="n">evt</span><span class="p">[</span><span class="s">&#39;mask&#39;</span><span class="p">]])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Cookie: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">evt</span><span class="p">[</span><span class="s">&#39;cookie&#39;</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Length: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">evt</span><span class="p">[</span><span class="s">&#39;len&#39;</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Name: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">evt</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\0</span><span class="s">&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Calling <tt class="docutils literal"><span class="pre">ladang.get_event()</span></tt> will also empty the event queue. Therefore, if
+you want to get more events from the queue, simply call it repeatedly.</p>
+<p>If in the second step you use <tt class="docutils literal"><span class="pre">ladang.init()</span></tt>, the call <tt class="docutils literal"><span class="pre">ladang.get_event()</span></tt>
+will block. If you use <tt class="docutils literal"><span class="pre">ladang.init1()</span></tt>, <tt class="docutils literal"><span class="pre">ladang.get_event()</span></tt> will return
+immediately, either list of events or an empty list. If you are employing a
+multithreaded strategy, it&#8217;s worth mentioning that <em>notify_fd</em> is typically a
+shared resource, so proper locking is usually required.</p>
+</div>
+<div class="section" id="step-five">
+<h2>Step Five<a class="headerlink" href="#step-five" title="Permalink to this headline">¶</a></h2>
+<p>When you are no longer interested watching the event, just do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ladang</span><span class="o">.</span><span class="n">rm_watch</span><span class="p">(</span><span class="n">watch_fd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-six">
+<h2>Step Six<a class="headerlink" href="#step-six" title="Permalink to this headline">¶</a></h2>
+<p>And when you&#8217;re done, simply close the inotify event queue file descriptor.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ladang</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">notify_fd</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial: ladang - inotify Made Easy</a><ul>
+<li><a class="reference internal" href="#step-one">Step One</a></li>
+<li><a class="reference internal" href="#step-two">Step Two</a></li>
+<li><a class="reference internal" href="#step-three">Step Three</a></li>
+<li><a class="reference internal" href="#step-four">Step Four</a></li>
+<li><a class="reference internal" href="#step-five">Step Five</a></li>
+<li><a class="reference internal" href="#step-six">Step Six</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">Module functions</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="Module functions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">ladang 0.8.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, E A Faisal &lt;eafaisal at gmail dot com&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

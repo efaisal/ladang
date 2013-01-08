@@ -4,15 +4,23 @@ from libc.stdint cimport *
 cimport posix.unistd
 from cinotify cimport *
 
-__version__ = '0.8'
+__version__ = '0.8.0'
 __doc__ = """
+.. moduleauthor: E A Faisal <eafaisal at gmail dot com>
+
 Yet another inotify binding. Minimum requirement is a Linux kernel 2.6.26.
 
 This module creates a very thin layer to the inotify API. It also added 2 new
-function calls get_event() and close() in addition to the direct binding to
-inotify API. get_event() provides a C-layer read()-ing and translating inotify
-events into Python dictionary. close() provides a C-layer close() function call
-to inotify instance file descriptor.
+function calls:
+
+- get_event()
+- close()
+
+in addition to the direct binding to inotify API.
+
+get_event() provides a C-layer read()-ing and translating inotify events into
+Python dictionary. close() provides a C-layer close() function call to inotify
+instance file descriptor.
 
 On top of that, this module attempts to throw Python exception on error and
 exposes a Python dictionary INOTIFY_MASKS to facilitate translating the event
@@ -85,7 +93,7 @@ _BLOCKFD_LIST = []
 
 cpdef int init() except -1:
     """
-init() -> int
+init()
 
 Initializes a new inotify instance.
 
@@ -100,14 +108,19 @@ Returns a file descriptor associated with a new inotify event queue.
 
 cpdef int init1(int flags) except - 1:
     """
-init1(flags) -> int
+init1(flags)
 
 Initializes a new inotify instance.
 
-If flag is 0, init1 is the same as init(). The flag can be bitwise ORed using
+If *flags* is 0, init1 is the same as init(). The flag can be bitwise ORed using
 the following values:
-  NONBLOCK    Set the O_NONBLOCK file status flag to the file descriptor
-  CLOEXEC     Set the FD_CLOEXEC flat to the file descriptor
+
+==================    ==========================================================
+Constant              Meaning
+==================    ==========================================================
+.. data:: NONBLOCK    Set the O_NONBLOCK file status flag to the file descriptor
+.. data:: CLOEXEC     Set the FD_CLOEXEC flag to the file descriptor
+==================    ==========================================================
 
 Returns a file descriptor associated with a new inotify event queue.
 """
@@ -120,7 +133,7 @@ Returns a file descriptor associated with a new inotify event queue.
 
 cpdef int add_watch(int fd, char* pathname, int mask) except -1:
     """
-add_watch(fd, pathname, mask) -> int
+add_watch(fd, pathname, mask)
 
 Adds a watch to an initialized inotify instance associated with file
 descriptor fd.
@@ -128,6 +141,10 @@ descriptor fd.
 This functions adds a new watch, or modifies an existing watch, for the file
 whose location is specified in pathname. The event to be monitored is specified
 by setting the bits in mask.
+
+*fd* is the inotify file descriptor as returned by *init()* or *init1()*.
+*pathname* is either a file or directory to watch. *mask* is the inotify event
+flags (see :ref:`addwatch-constant`).
 
 Returns a watch descriptor on success.
     """
@@ -139,12 +156,12 @@ Returns a watch descriptor on success.
 
 cpdef int rm_watch(int fd, int wd) except -1:
     """
-rm_watch(fd, wd) -> int
+rm_watch(fd, wd)
 
 Remove an existing watch from inotify instance.
 
-This function removes the watch associated with the watch descriptor wd from 
-inotify instance associated with the file descriptor fd.
+This function removes the watch associated with the watch descriptor *wd* from 
+inotify instance associated with the file descriptor *fd*.
 
 Removing a watch will cause IN_IGNORED to be generated for this watch descriptor.
 
@@ -158,9 +175,9 @@ Returns 0 on success.
 
 cpdef int close(int fd) except -1:
     """
-close(fd) -> int
+close(fd)
 
-Close inotify instance associated with file descriptor fd.
+Close inotify instance associated with file descriptor *fd*.
 
 Returns 0 on success.
 """
@@ -173,16 +190,21 @@ Returns 0 on success.
 
 cpdef object get_event(int fd) with gil:
     """
-get_event(fd) -> list of dictionary
+get_event(fd)
 
-Fetch event occuring from inotify instance associated with file descriptor fd.
+Fetch event occuring from inotify instance associated with file descriptor *fd*.
 
 Each event will be represented as Python dictionary, with the following keys:
-  wd        Watch descriptor
-  mask      Mask of events
-  cookie    Unique cookie associating related events
-  len       Size of name field
-  name      Optional null-terminated name
+
+======    ========================================
+Key       Meaning
+======    ========================================
+wd        Watch descriptor
+mask      Mask of events
+cookie    Unique cookie associating related events
+len       Size of name field
+name      Optional null-terminated name
+======    ========================================
 
 Returns a list of events.
 """
