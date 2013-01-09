@@ -13,7 +13,8 @@ Contents:
 
    intro
    tutorial
-   api
+   highlevelapi
+   lowlevelapi
 
 Indices and tables
 ==================

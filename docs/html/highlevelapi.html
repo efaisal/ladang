@@ -1,0 +1,323 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ladang - High Level API &mdash; ladang 0.9.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.9.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ladang 0.9.0 documentation" href="index.html" />
+    <link rel="next" title="_ladang - Low Level API" href="lowlevelapi.html" />
+    <link rel="prev" title="Tutorial: ladang - inotify Made Easy" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lowlevelapi.html" title="_ladang - Low Level API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial: ladang - inotify Made Easy"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ladang 0.9.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-ladang">
+<span id="ladang-high-level-api"></span><h1>ladang - High Level API<a class="headerlink" href="#module-ladang" title="Permalink to this headline">¶</a></h1>
+<p>This module provides the a high level, more Pythonic interface to inotify as
+compared to the low level _ladang module, a low level C extension.</p>
+<dl class="class">
+<dt id="ladang.Ladang">
+<em class="property">class </em><tt class="descclassname">ladang.</tt><tt class="descname">Ladang</tt><big>(</big><em>flags=0</em><big>)</big><a class="headerlink" href="#ladang.Ladang" title="Permalink to this definition">¶</a></dt>
+<dd><p>A wrapper class to _ladang to provide a more Pythonic interface to inotify.</p>
+<dl class="method">
+<dt id="ladang.Ladang.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#ladang.Ladang.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the control file descriptor of Ladang object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ladang.Ladang.get_event">
+<tt class="descname">get_event</tt><big>(</big><big>)</big><a class="headerlink" href="#ladang.Ladang.get_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch events on watched file or directory..</p>
+<p>Each event will be represented as Python dictionary, with the following keys:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Key</th>
+<th class="head">Meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>wd</td>
+<td>Watched file of directory</td>
+</tr>
+<tr class="row-odd"><td>mask</td>
+<td>Mask of events</td>
+</tr>
+<tr class="row-even"><td>cookie</td>
+<td>Unique cookie associating related events</td>
+</tr>
+<tr class="row-odd"><td>name</td>
+<td>Optional null-terminated name</td>
+</tr>
+</tbody>
+</table>
+<p>Returns a tuple of events.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ladang.Ladang.get_fd">
+<tt class="descname">get_fd</tt><big>(</big><big>)</big><a class="headerlink" href="#ladang.Ladang.get_fd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the inotify event queue file descriptor.</p>
+<p>Returns a file descriptor associated with inotify event queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ladang.Ladang.unwatch">
+<tt class="descname">unwatch</tt><big>(</big><em>pathname</em><big>)</big><a class="headerlink" href="#ladang.Ladang.unwatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unregister watched file or directory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ladang.Ladang.watch">
+<tt class="descname">watch</tt><big>(</big><em>pathname</em><span class="optional">[</span>, <em>mask=ladang.IN_ALL_EVENTS</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#ladang.Ladang.watch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a file or directory to watch on event(s) defined by <em>mask</em>. (see <a class="reference internal" href="#eventmask-constant"><em>Inotify event mask constants</em></a>)</p>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="inotify-event-mask-constants">
+<span id="eventmask-constant"></span><h2>Inotify event mask constants<a class="headerlink" href="#inotify-event-mask-constants" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="ladang.IN_ACCESS">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ACCESS</tt><a class="headerlink" href="#ladang.IN_ACCESS" title="Permalink to this definition">¶</a></dt>
+<dd><p>File was accessed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MODIFY">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MODIFY</tt><a class="headerlink" href="#ladang.IN_MODIFY" title="Permalink to this definition">¶</a></dt>
+<dd><p>File was modified.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_ATTRIB">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ATTRIB</tt><a class="headerlink" href="#ladang.IN_ATTRIB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Metadata changed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_CLOSE_WRITE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_CLOSE_WRITE</tt><a class="headerlink" href="#ladang.IN_CLOSE_WRITE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writtable file was closed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_CLOSE_NOWRITE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_CLOSE_NOWRITE</tt><a class="headerlink" href="#ladang.IN_CLOSE_NOWRITE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unwrittable file closed.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_CLOSE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_CLOSE</tt><a class="headerlink" href="#ladang.IN_CLOSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to ladang.IN_CLOSE_WRITE | ladang.IN_CLOSE_NOWRITE</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_OPEN">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_OPEN</tt><a class="headerlink" href="#ladang.IN_OPEN" title="Permalink to this definition">¶</a></dt>
+<dd><p>File was opened.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MOVED_FROM">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MOVED_FROM</tt><a class="headerlink" href="#ladang.IN_MOVED_FROM" title="Permalink to this definition">¶</a></dt>
+<dd><p>File was moved from X.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MOVED_TO">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MOVED_TO</tt><a class="headerlink" href="#ladang.IN_MOVED_TO" title="Permalink to this definition">¶</a></dt>
+<dd><p>File was moved to Y.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MOVE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MOVE</tt><a class="headerlink" href="#ladang.IN_MOVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Equivalent to ladang.IN_MOVED_FROM | ladang.IN_MOVED_TO</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_CREATE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_CREATE</tt><a class="headerlink" href="#ladang.IN_CREATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subfile was created.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_DELETE">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_DELETE</tt><a class="headerlink" href="#ladang.IN_DELETE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subfile was deleted.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_DELETE_SELF">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_DELETE_SELF</tt><a class="headerlink" href="#ladang.IN_DELETE_SELF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Self was deleted.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MOVE_SELF">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MOVE_SELF</tt><a class="headerlink" href="#ladang.IN_MOVE_SELF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Self was moved.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_ONLYDIR">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ONLYDIR</tt><a class="headerlink" href="#ladang.IN_ONLYDIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only watch the path if it is a directory.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_DONT_FOLLOW">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_DONT_FOLLOW</tt><a class="headerlink" href="#ladang.IN_DONT_FOLLOW" title="Permalink to this definition">¶</a></dt>
+<dd><p>Do not follow a sym link.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_EXCL_UNLINK">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_EXCL_UNLINK</tt><a class="headerlink" href="#ladang.IN_EXCL_UNLINK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exclude events on unlinked objects.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_MASK_ADD">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_MASK_ADD</tt><a class="headerlink" href="#ladang.IN_MASK_ADD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add to the mask of an already existing watch.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_ISDIR">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ISDIR</tt><a class="headerlink" href="#ladang.IN_ISDIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event occurred against dir.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_ONESHOT">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ONESHOT</tt><a class="headerlink" href="#ladang.IN_ONESHOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only send event once.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="ladang.IN_ALL_EVENTS">
+<tt class="descclassname">ladang.</tt><tt class="descname">IN_ALL_EVENTS</tt><a class="headerlink" href="#ladang.IN_ALL_EVENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>All events which can be waited on.</p>
+<p>Equivalent to:</p>
+<p>ladang.IN_ACCESS | ladang.IN_MODIFY | ladang.IN_ATTRIB | ladang.IN_CLOSE_WRITE | ladang.IN_CLOSE_NOWRITE | ladang.IN_OPEN | ladang.IN_MOVED_FROM | ladang.IN_MOVED_TO | ladang.IN_CREATE | ladang.IN_DELETE | ladang.IN_DELETE_SELF | ladang.IN_MOVE_SELF</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ladang - High Level API</a><ul>
+<li><a class="reference internal" href="#inotify-event-mask-constants">Inotify event mask constants</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial: ladang - inotify Made Easy</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lowlevelapi.html"
+                        title="next chapter">_ladang - Low Level API</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/highlevelapi.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="lowlevelapi.html" title="_ladang - Low Level API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial: ladang - inotify Made Easy"
+             >previous</a> |</li>
+        <li><a href="index.html">ladang 0.9.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, E A Faisal &lt;eafaisal at gmail dot com&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

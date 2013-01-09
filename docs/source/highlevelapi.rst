@@ -1,12 +1,12 @@
-_ladang - Low Level API
+ladang - High Level API
 =======================
 
-.. automodule:: _ladang
+.. automodule:: ladang
    :members:
 
-.. _addwatch-constant:
+.. _eventmask-constant:
 
-``add_watch()`` flag constants
+Inotify event mask constants
 ------------------------------
 .. data:: IN_ACCESS
 

@@ -3,18 +3,19 @@
 from distutils.core import setup
 from distutils.extension import Extension
 
-long_description = """A Python module which provides a very thin layer binding to inotify API supporting both blocking and non-blocking operation."""
+long_description = """A Python module which provides a binding to inotify API."""
 
 setup(
     name = 'ladang',
     description = 'Yet another inotify binding',
     long_description = long_description,
     url = 'https://github.com/efaisal/ladang',
-    version = '0.8.0',
+    version = '0.9.0',
     author = 'E A Faisal',
     author_email = 'eafaisal@gmail.com',
     license = 'MIT',
-    py_modules = ['ladang'],
-    ext_modules = [Extension("ladang", ["src/ladang.c"])],
+    package_dir = {'': 'src'},
+    packages = [''],
+    ext_modules = [Extension("_ladang", ["src/_ladang.c"])],
     platforms = ['Linux']
 )

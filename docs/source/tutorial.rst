@@ -1,7 +1,8 @@
 Tutorial: ladang - inotify Made Easy
 ====================================
 
-You are only 6 steps away to fully utilize ladang:
+You are only 6 steps away to fully utilize ladang. In this tutorial we will
+monitor a directory for all possible inotify events.
 
 Step One
 --------
@@ -11,26 +12,25 @@ Import the module. ::
 
 Step Two
 --------
-Get a file descriptor associated with a new inotify event queue. ::
+Instantiate ``ladang.Ladang()`` object. ::
 
-    notify_fd = ladang.init() # This call is blocking
+    inotify = ladang.Ladang() # This call is for blocking get_event()
 
 or ::
 
-    notify_fd = ladang.init1(ladang.NONBLOCK|ladang.CLOEXEC) # This call is non-blocking
+    inotify = ladang.Ladang(ladang.NONBLOCK|ladang.CLOEXEC) # This call for non-blocking get_event()
 
 Step Three
 ----------
 
-Next we add or create a new watch for file or directory we are interested to
-monitor. For example, if we are interested to monitor some events for
-*/path/to/mydir* for all events, we can tell the inotify event queue to tell us
-when the event occur by doing: ::
+Next we register a file or a directory which we are interested to monitor and
+event which we wish the kernel to notify us. By default all events will be
+reported. ::
 
-    watch_fd = ladang.add_watch(notify_fd, '/path/to/mydir', ladang.IN_ALL_EVENTS)
+    inotify.watch('/path/to/mydir', ladang.IN_ALL_EVENTS)
 
 The bit mask ``ladang.IN_ALL_EVENTS`` indicates we are interested in all events.
-There are many other masks available which can be bitwise ORed. See :ref:`addwatch-constant`
+There are many other masks available which can be bitwise ORed. See :ref:`eventmask-constant`
 for other possible values.
 
 Step Four
@@ -45,35 +45,34 @@ happen. Execute from the shell: ::
 
 Then we can pull the events from the queue by doing: ::
 
-    events = ladang.get_event(notify_fd)
+    events = inotify.get_event()
+
+If there is no inotify event, ``inotify.get_event()`` returns an empty tuple.
+Else we can do this to print out the events: ::
+
     for event in events:
         print("Watch description: %d" % evt['wd'])
         print("Mask: %d" % evt['mask'])
         print("Mask descr: %s => %s" % ladang.INOTIFY_MASKS[evt['mask']])
         print("Cookie: %d" % evt['cookie'])
-        print("Length: %d" % evt['len'])
         print("Name: %s" % evt['name'].strip("\0"))
 
-Calling ``ladang.get_event()`` will also empty the event queue. Therefore, if
-you want to get more events from the queue, simply call it repeatedly.
-
-If in the second step you use ``ladang.init()``, the call ``ladang.get_event()``
-will block. If you use ``ladang.init1()``, ``ladang.get_event()`` will return
-immediately, either list of events or an empty list. If you are employing a
-multithreaded strategy, it's worth mentioning that *notify_fd* is typically a
-shared resource, so proper locking is usually required.
+A word of cautious, if you are employing a multithreaded strategy, it is
+important to employ a proper locking. This is because internally, the watched
+file descriptor will be shared across all thread.
 
 Step Five
 ---------
 
-When you are no longer interested watching the event, just do: ::
+When you are no longer interested to monitor any event, just do: ::
 
-    ladang.rm_watch(watch_fd)
+    inotify.unwatch('/path/to/dir')
 
 Step Six
 --------
 
-And when you're done, simply close the inotify event queue file descriptor. ::
+And when you're done, simply call the ``inotify.close()`` method to close the
+controlling inotify file descriptor. ::
 
-    ladang.close(notify_fd)
+    inotify.close(notify_fd)
 

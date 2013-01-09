@@ -6,21 +6,15 @@ from cinotify cimport *
 
 __version__ = '0.8.0'
 __doc__ = """
-.. moduleauthor: E A Faisal <eafaisal at gmail dot com>
+This module provides the low level access to the inotify API. Most of the API
+provided by this module resembles the low level C API with two exception:
 
-Yet another inotify binding. Minimum requirement is a Linux kernel 2.6.26.
+- *get_event()*
+  provides a C-layer read()-ing and translating inotify events into Python dictionary
+- *close()*
+  provides a C-layer close() function call to inotify instance file descriptor
 
-This module creates a very thin layer to the inotify API. It also added 2 new
-function calls:
-
-- get_event()
-- close()
-
-in addition to the direct binding to inotify API.
-
-get_event() provides a C-layer read()-ing and translating inotify events into
-Python dictionary. close() provides a C-layer close() function call to inotify
-instance file descriptor.
+These were added as an enhancement to existing low level API.
 
 On top of that, this module attempts to throw Python exception on error and
 exposes a Python dictionary INOTIFY_MASKS to facilitate translating the event
@@ -102,7 +96,7 @@ Returns a file descriptor associated with a new inotify event queue.
     cdef int notification_fd
     notification_fd = inotify_init()
     if notification_fd == -1:
-        raise OSError(errno, strerror(errno))
+        raise IOError(errno, strerror(errno))
     _BLOCKFD_LIST.append(notification_fd)
     return notification_fd
 
@@ -127,7 +121,7 @@ Returns a file descriptor associated with a new inotify event queue.
     cdef int notification_fd
     notification_fd = inotify_init1(flags)
     if notification_fd == -1:
-        raise OSError(errno, strerror(errno))
+        raise IOError(errno, strerror(errno))
     if not flags & IN_NONBLOCK: _BLOCKFD_LIST.append(notification_fd)
     return notification_fd
 
@@ -151,7 +145,7 @@ Returns a watch descriptor on success.
     cdef int watch_fd
     watch_fd = inotify_add_watch(fd, pathname, mask)
     if watch_fd == -1:
-        raise OSError(errno, strerror(errno))
+        raise IOError(errno, strerror(errno))
     return watch_fd
 
 cpdef int rm_watch(int fd, int wd) except -1:
@@ -170,7 +164,7 @@ Returns 0 on success.
     cdef int ret_val
     ret_val = inotify_rm_watch(fd, wd)
     if ret_val == -1:
-        raise OSError(errno, strerror(errno))
+        raise IOError(errno, strerror(errno))
     return ret_val
 
 cpdef int close(int fd) except -1:
@@ -185,7 +179,7 @@ Returns 0 on success.
     if fd in _BLOCKFD_LIST:
         del _BLOCKFD_LIST[_BLOCKFD_LIST.index(fd)]
     if ret_val == -1:
-        raise OSError(errno, strerror(errno))
+        raise IOError(errno, strerror(errno))
     return ret_val
 
 cpdef object get_event(int fd) with gil:
@@ -221,7 +215,7 @@ Returns a list of events.
         length = posix.unistd.read(fd, cbuffer, EVENT_BUFFER_LENGTH)
         if length == -1:
             if errno == EAGAIN: break
-            raise OSError(errno, strerror(errno))
+            raise IOError(errno, strerror(errno))
 
         while i < length:
             # event is a pointer and referenced to cbuffer address

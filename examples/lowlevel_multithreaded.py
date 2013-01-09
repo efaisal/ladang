@@ -2,17 +2,15 @@
 
 import sys
 import threading
-import ladang
+from _ladang import *
 
-def watch_worker(notify_fd):
-    get_event_call = 0
+def worker(notify_fd, lock):
+    i = 1
     while True:
-        if get_event_call > 2: break
         lock.acquire()
         try:
-            events = ladang.get_event(notify_fd)
-            if len(events) > 0: get_event_call = get_event_call + 1
-        except OSError as (errno, strerror):
+            events = get_event(notify_fd)
+        except IOError as (errno, strerror):
             print("Errno: %d" % errno)
             print("Strierror %s:" % strerror)
             raise
@@ -21,23 +19,23 @@ def watch_worker(notify_fd):
             for evt in events:
                 print("Watch description: %d" % evt['wd'])
                 print("Mask: %d" % evt['mask'])
-                print("Mask descr: %s => %s" % ladang.INOTIFY_MASKS[evt['mask']])
+                print("Mask descr: %s => %s" % INOTIFY_MASKS[evt['mask']])
                 print("Cookie: %d" % evt['cookie'])
                 print("Length: %d" % evt['len'])
                 print("Name: %s" % evt['name'].strip("\0"))
-                print("")
+                print('')
+            i += 1
         lock.release()
+        if i > 2: break
 
 if __name__ == '__main__':
-    ret_code = 0
     mydir = 'mydir'
     lock = threading.Lock()
 
     # Initialize module
     try:
-        notify_fd = ladang.init()
-        print "fd:", notify_fd
-    except OSError as (errno, strerror):
+        notify_fd = init()
+    except IOError as (errno, strerror):
         print "Errno:", errno
         print "Strerror:", strerror
         sys.exit(1)
@@ -45,33 +43,31 @@ if __name__ == '__main__':
     # Add the notification file descriptor to the watch list
     # Watch for all events
     try:
-        watch_fd = ladang.add_watch(notify_fd, mydir, ladang.IN_ALL_EVENTS)
-        print "wd:", watch_fd
-    except OSError as (errno, strerror):
+        watch_fd = add_watch(notify_fd, mydir, IN_ALL_EVENTS)
+    except IOError as (errno, strerror):
         print "Errno:", errno
         print "Strerror:", strerror
         try:
-            ladang.close(notify_fd)
+            close(notify_fd)
         except:
             pass
         sys.exit(1)
 
-    args = notify_fd,
-
+    # We test with 2 threads
+    num_of_threads = 2
     try:
-        # 2 threads
         threads = []
-        for i in range(2):
-            t = threading.Thread(target=watch_worker, args=args)
+        for i in range(num_of_threads):
+            t = threading.Thread(target=worker, args=[notify_fd, lock])
             threads.append(t)
             t.start()
     finally:
-        for i in range(2):
+        for i in range(num_of_threads):
             threads[i].join()
         try:
-            ladang.rm_watch(notify_fd, watch_fd)
-            ladang.close(notify_fd)
+            rm_watch(notify_fd, watch_fd)
+            close(notify_fd)
         except:
             pass
 
-    sys.exit(ret_code)
+    sys.exit(0)
