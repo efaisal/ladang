@@ -1,6 +1,6 @@
 from _ladang import *
 
-__version__ = '0.8.0'
+__version__ = '0.9.0'
 __doc__ = """
 This module provides the a high level, more Pythonic interface to inotify as
 compared to the low level _ladang module, a low level C extension.

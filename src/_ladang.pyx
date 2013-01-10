@@ -4,7 +4,7 @@ from libc.stdint cimport *
 cimport posix.unistd
 from cinotify cimport *
 
-__version__ = '0.8.0'
+__version__ = '0.9.0'
 __doc__ = """
 This module provides the low level access to the inotify API. Most of the API
 provided by this module resembles the low level C API with two exception:
