@@ -20,7 +20,7 @@ Quick Start
 
 3. Run setup.py
     ```
-    $ cd ladang-0.8.0
+    $ cd ladang
     $ python setup.py install
     ```
 
