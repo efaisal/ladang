@@ -1,7 +1,7 @@
 License
 =======
 
-ladang is licensed by the MIT license.
+ladang is licensed under the MIT license.
 
 The MIT License
 ---------------
