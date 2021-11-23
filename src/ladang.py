@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from _ladang import *
 
 __version__ = '0.9.0'
